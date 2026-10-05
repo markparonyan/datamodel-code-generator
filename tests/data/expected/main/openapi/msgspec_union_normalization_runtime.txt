@@ -1,0 +1,20 @@
+{
+  "mixed_id_offset_url_device": {
+    "id": "not-a-uuid",
+    "offset": [
+      1.0,
+      2.0
+    ],
+    "url": "https://example.com",
+    "device_type": "abc_1"
+  },
+  "empty_url": {
+    "id": "x",
+    "url": ""
+  },
+  "null_url": {
+    "id": "x",
+    "url": null
+  },
+  "bad_device_type": "ValidationError: Expected `str` matching regex '^[a-z0-9_]+$' - at `$.device_type`"
+}

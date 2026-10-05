@@ -553,6 +553,7 @@ class DataModelFieldBase(_BaseModel):  # noqa: PLR0904
     SUPPORTS_ANNOTATED_CONSTRAINTS: ClassVar[bool] = False
     ANNOTATED_CONSTRAINTS_CONTEXT: ClassVar[object | None] = None
     SUPPORTS_DISCRIMINATOR: ClassVar[bool] = False
+    MERGES_STR_LIKE_UNION_MEMBERS: ClassVar[bool] = False
 
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
