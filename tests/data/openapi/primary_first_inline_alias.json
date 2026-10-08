@@ -1,0 +1,17 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "repro", "version": "1.0.0"},
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "device_type": {"anyOf": [{"type": "string", "pattern": "^[a-z0-9_]+$"}, {"type": "null"}]}
+        }
+      },
+      "DeviceType": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}}},
+      "DeviceTypeList": {"type": "object", "required": ["device_types"], "properties": {"device_types": {"type": "array", "items": {"$ref": "#/components/schemas/DeviceType"}}}}
+    }
+  }
+}
