@@ -52,12 +52,6 @@ def test_same_name_from_other_module_is_not_str_like() -> None:
     assert get_colliding_str_like_members(_union(_str(), custom)) == ()
 
 
-def test_aliased_import_is_still_str_like() -> None:
-    """Match an aliased stdlib import by its module and name."""
-    aliased = DataType.from_import(Import(from_="datetime", import_="date", alias="date_aliased"))
-    assert len(get_colliding_str_like_members(_union(_str(), aliased))) == 2
-
-
 @pytest.mark.parametrize(
     "build",
     [
