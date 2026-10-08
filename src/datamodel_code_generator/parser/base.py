@@ -130,6 +130,7 @@ from datamodel_code_generator.model._decisions.tag_value import (
     tag_key,
     variant_tags,
 )
+from datamodel_code_generator.model._str_like_union import get_colliding_str_like_members
 from datamodel_code_generator.model.base import (
     ALL_MODEL,  # noqa: F401  # Preserve the established parser.base export.
     GENERIC_BASE_CLASS_NAME,
@@ -5482,6 +5483,53 @@ class Parser(ABC, Generic[ParserConfigT, SchemaFeaturesT]):
             return data_type
         return None  # pragma: no cover
 
+    def __merge_str_like_union_members(
+        self,
+        models: list[DataModel],
+        unused_models: list[DataModel],
+        imports: Imports,
+        *,
+        can_retain_cache: bool,
+    ) -> None:
+        if not self.data_model_field_type.MERGES_STR_LIKE_UNION_MEMBERS:
+            return
+        generation_store = self.generation_store
+        orphan_candidates: dict[int, DataModel] = {}
+        changed = False
+        for model in models:
+            for model_field in model.fields:
+                for data_type in list(model_field.data_type.all_data_types):
+                    if not (colliding := get_colliding_str_like_members(data_type)):
+                        continue
+                    colliding_ids = {id(member) for member in colliding}
+                    str_data_type = self.data_type_manager.get_data_type(Types.string)
+                    merged: list[DataType] = []
+                    for member in data_type.data_types:
+                        if id(member) not in colliding_ids:
+                            merged.append(member)
+                            continue
+                        if str_data_type not in merged:
+                            merged.append(str_data_type)
+                        if (reference := member.reference) is not None and isinstance(reference.source, DataModel):
+                            orphan_candidates[id(reference.source)] = reference.source
+                            generation_store.detach_data_type_ref(member)
+                    generation_store.set_nested_data_types(data_type, merged)
+                    changed = True
+                    _clear_model_imports_cache_if_retained(model, can_retain_cache=can_retain_cache)
+        generation_index = generation_store.index
+        for orphan in orphan_candidates.values():
+            if (
+                generation_index.has_data_type_references(orphan.reference)
+                or orphan in unused_models
+                or not isinstance(orphan, (TypeAliasBase, Enum))
+                or ModelResolver._is_primary_definition([orphan.reference.path])  # noqa: SLF001
+            ):
+                continue
+            imports.remove_referenced_imports(orphan.path)
+            unused_models.append(orphan)
+        if changed and not can_retain_cache:
+            _clear_model_imports_cache(models)
+
     def __replace_unique_list_to_set(self, models: list[DataModel], *, can_retain_cache: bool) -> None:
         changed = False
         for model in models:
@@ -8902,6 +8950,15 @@ class Parser(ABC, Generic[ParserConfigT, SchemaFeaturesT]):
                 )
             raise _CollapseRootModelsRecursionError from exc
 
+    def __merge_module_str_like_union_members(self, state: _ModuleState) -> None:
+        """Collapse str-like union members that target model cannot distinguish."""
+        self.__merge_str_like_union_members(
+            state.model_list,
+            state.unused_models,
+            state.imports,
+            can_retain_cache=state.can_retain_cache,
+        )
+
     def __remove_module_overridden_models(self, state: _ModuleState) -> None:
         """Keep the models a model-level type override replaces out of the module, and the list before it."""
         state.model_list_before_override_removal = state.model_list
@@ -10062,6 +10119,11 @@ class Parser(ABC, Generic[ParserConfigT, SchemaFeaturesT]):
         PassSpec(
             decls.COLLAPSE_ROOT_MODELS,
             lambda self, s: self.__collapse_module_root_models(s),
+            checked_models=_module_models,
+        ),
+        PassSpec(
+            decls.MERGE_STR_LIKE_UNION_MEMBERS,
+            lambda self, s: self.__merge_module_str_like_union_members(s),
             checked_models=_module_models,
         ),
         PassSpec(

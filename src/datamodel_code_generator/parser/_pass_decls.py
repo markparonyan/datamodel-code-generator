@@ -440,6 +440,16 @@ COLLAPSE_ROOT_MODELS = PassDecl(
     summary="Inlines the root models the module references.",
     condition="collapse_root_models",
 )
+MERGE_STR_LIKE_UNION_MEMBERS = PassDecl(
+    "merge_str_like_union_members",
+    Phase.MODULES,
+    Scope.MODULE,
+    PassKind.TRANSFORM,
+    reads=_facts(Fact.FIELD_TYPES, Fact.MODEL_KIND),
+    writes=_facts(Fact.FIELD_TYPES, Fact.MODELS_EXIST, RenderFact.MODULE_IMPORTS),
+    after=(After("collapse_root_models", "merges the final union members after root models were inlined"),),
+    summary="Collapses union members that the target model treats as the same string-like type.",
+)
 SET_DEFAULT_ENUM_MEMBER = PassDecl(
     "set_default_enum_member",
     Phase.MODULES,
@@ -447,7 +457,10 @@ SET_DEFAULT_ENUM_MEMBER = PassDecl(
     PassKind.TRANSFORM,
     reads=_facts(Fact.DEFAULTS, Fact.FIELD_TYPES),
     writes=_facts(Fact.DEFAULTS),
-    after=(After("collapse_root_models", "writes enum members as defaults of the types collapse inlined"),),
+    after=(
+        After("collapse_root_models", "writes enum members as defaults of the types collapse inlined"),
+        After("merge_str_like_union_members", "reads the field types after colliding union members were merged"),
+    ),
 )
 SORT_MODELS = PassDecl(
     "sort_models",

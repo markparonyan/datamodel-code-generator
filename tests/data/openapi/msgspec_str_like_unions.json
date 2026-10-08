@@ -1,0 +1,25 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "repro", "version": "1.0.0"},
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"anyOf": [{"type": "string", "format": "uuid"}, {"type": "string"}]},
+          "plain_id": {"type": "string", "format": "uuid"},
+          "optional_id": {"anyOf": [{"type": "string", "format": "uuid"}, {"type": "null"}]},
+          "one_of_id": {"oneOf": [{"type": "string", "format": "uuid"}, {"type": "string", "minLength": 3}]},
+          "ids": {"type": "array", "items": {"anyOf": [{"type": "string", "format": "uuid"}, {"type": "string"}]}},
+          "url": {"anyOf": [{"type": "string", "format": "uri", "minLength": 1}, {"type": "string", "maxLength": 0}, {"type": "null"}]},
+          "mixed": {"anyOf": [{"type": "string", "format": "uuid"}, {"type": "string", "format": "date-time"}, {"type": "integer"}]},
+          "shared": {"$ref": "#/components/schemas/IdOrText"}
+        }
+      },
+      "IdOrText": {"anyOf": [{"type": "string", "format": "uuid"}, {"type": "string"}]},
+      "Slug": {"type": "string", "pattern": "^[a-z]+$"}
+    }
+  }
+}
