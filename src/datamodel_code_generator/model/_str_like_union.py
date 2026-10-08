@@ -2,19 +2,33 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
+
+from datamodel_code_generator.imports import (
+    IMPORT_DATE,
+    IMPORT_DATETIME,
+    IMPORT_DECIMAL,
+    IMPORT_TIME,
+    IMPORT_TIMEDELTA,
+    IMPORT_UUID,
+)
+from datamodel_code_generator.model.base import DataModel
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from datamodel_code_generator.types import DataType
 
-_STR_LIKE_TYPE_NAMES = frozenset({"str", "UUID", "datetime", "date", "time", "timedelta", "Decimal"})
+_STR_LIKE_IMPORT_KEYS: Final = frozenset(
+    (import_.from_, import_.import_)
+    for import_ in (IMPORT_UUID, IMPORT_DATETIME, IMPORT_DATE, IMPORT_TIME, IMPORT_TIMEDELTA, IMPORT_DECIMAL)
+)
+_BUILTIN_STR: Final = "str"
 
 
 def _is_reference_str_like(data_type: DataType, seen: frozenset[int]) -> bool:
     source = data_type.reference.source if data_type.reference else None
-    if source is None or not getattr(source, "IS_ALIAS", False) or id(source) in seen or len(source.fields) != 1:
+    if not isinstance(source, DataModel) or not source.IS_ALIAS or id(source) in seen or len(source.fields) != 1:
         return False
     return _is_str_like(source.fields[0].data_type, seen | {id(source)})
 
@@ -24,7 +38,9 @@ def _is_str_like(data_type: DataType, seen: frozenset[int] = frozenset()) -> boo
         return _is_reference_str_like(data_type, seen)
     if data_type.literals or data_type.data_types or data_type.enum_member_literals:
         return False
-    return data_type.type in _STR_LIKE_TYPE_NAMES
+    if data_type.import_:
+        return (data_type.import_.from_, data_type.import_.import_) in _STR_LIKE_IMPORT_KEYS
+    return data_type.type == _BUILTIN_STR
 
 
 def get_colliding_str_like_members(data_type: DataType) -> Sequence[DataType]:
