@@ -19,10 +19,14 @@ if TYPE_CHECKING:
 
     from datamodel_code_generator.types import DataType
 
-_STR_LIKE_IMPORT_KEYS: Final = frozenset(
-    (import_.from_, import_.import_)
-    for import_ in (IMPORT_UUID, IMPORT_DATETIME, IMPORT_DATE, IMPORT_TIME, IMPORT_TIMEDELTA, IMPORT_DECIMAL)
-)
+_STR_LIKE_IMPORTS: Final = frozenset({
+    IMPORT_UUID,
+    IMPORT_DATETIME,
+    IMPORT_DATE,
+    IMPORT_TIME,
+    IMPORT_TIMEDELTA,
+    IMPORT_DECIMAL,
+})
 _BUILTIN_STR: Final = "str"
 
 
@@ -39,7 +43,7 @@ def _is_str_like(data_type: DataType, seen: frozenset[int] = frozenset()) -> boo
     if data_type.literals or data_type.data_types or data_type.enum_member_literals:
         return False
     if data_type.import_:
-        return (data_type.import_.from_, data_type.import_.import_) in _STR_LIKE_IMPORT_KEYS
+        return data_type.import_ in _STR_LIKE_IMPORTS
     return data_type.type == _BUILTIN_STR
 
 
