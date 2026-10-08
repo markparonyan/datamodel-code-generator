@@ -1,0 +1,19 @@
+{
+  "valid": {
+    "offset": [
+      1.0,
+      2.0
+    ],
+    "pair": [
+      "a",
+      1
+    ],
+    "tags": [
+      "x"
+    ]
+  },
+  "null_offset": {
+    "offset": null
+  },
+  "too_many_tags": "ValidationError: Expected `array` of length <= 3 - at `$.tags`"
+}

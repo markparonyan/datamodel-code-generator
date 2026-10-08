@@ -794,6 +794,17 @@ class DataModelField(DataModelFieldBase):
         """Return whether to fall back to nullable type instead of UnsetType."""
         return not self._not_required
 
+    def _is_fixed_length_tuple(self) -> bool:
+        data_type = self.data_type
+        while not data_type.is_tuple:
+            if data_type.reference or data_type.is_list or data_type.is_dict or data_type.is_set:
+                return False
+            members = [member for member in data_type.data_types if member.type != NONE]
+            if len(members) != 1:
+                return False
+            data_type = members[0]
+        return True
+
     def _get_meta_string(self) -> str | None:
         """Compute Meta(...) string if there are any meta constraints."""
         data: dict[str, Any] = {k: v for k, v in self.extras.items() if k in self._META_FIELD_KEYS}
@@ -823,6 +834,9 @@ class DataModelField(DataModelFieldBase):
             data["min_length"] = min_items
         if (max_items := data.pop("max_items", None)) is not None:
             data["max_length"] = max_items
+        if self._is_fixed_length_tuple():
+            data.pop("min_length", None)
+            data.pop("max_length", None)
 
         meta_arguments = sorted(f"{k}={represent_python_value(v)}" for k, v in data.items() if v is not None)
         return f"Meta({', '.join(meta_arguments)})" if meta_arguments else None
