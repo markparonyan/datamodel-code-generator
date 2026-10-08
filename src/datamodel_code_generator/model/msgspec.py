@@ -413,6 +413,7 @@ class DataModelField(DataModelFieldBase):
 
     SUPPORTS_ANNOTATED_CONSTRAINTS: ClassVar[bool] = True
     ANNOTATED_CONSTRAINTS_CONTEXT: ClassVar[object | None] = _ANNOTATED_CONSTRAINTS_CONTEXT
+    MERGES_STR_LIKE_UNION_MEMBERS: ClassVar[bool] = True
     _FIELD_KEYS: ClassVar[set[str]] = {
         "default",
         "default_factory",

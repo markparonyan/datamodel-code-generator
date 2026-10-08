@@ -1,0 +1,28 @@
+{
+  "non_uuid_id": {
+    "id": "not-a-uuid",
+    "plain_id": "123e4567-e89b-12d3-a456-426614174000"
+  },
+  "empty_url": {
+    "id": "x",
+    "url": ""
+  },
+  "http_url": {
+    "id": "x",
+    "url": "https://example.com"
+  },
+  "null_url": {
+    "id": "x",
+    "url": null
+  },
+  "mixed_values": {
+    "id": "x",
+    "ids": [
+      "a",
+      "b"
+    ],
+    "mixed": "2020-01-01T00:00:00Z",
+    "shared": "free text"
+  },
+  "bad_plain_id": "ValidationError: Invalid UUID - at `$.plain_id`"
+}
