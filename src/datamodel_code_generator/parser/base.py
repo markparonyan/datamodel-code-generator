@@ -5540,6 +5540,10 @@ class Parser(ABC, Generic[ParserConfigT, SchemaFeaturesT]):
                     for detached in self.__collapse_str_like_members(data_type, colliding):
                         orphan_candidates[id(detached)] = detached
                     _clear_model_imports_cache_if_retained(model, can_retain_cache=can_retain_cache)
+        if changed:
+            for model in models:
+                if model.IS_ALIAS:
+                    orphan_candidates.setdefault(id(model), model)
         self.__remove_orphaned_aliases(orphan_candidates.values(), unused_models, imports)
         if changed and not can_retain_cache:
             _clear_model_imports_cache(models)

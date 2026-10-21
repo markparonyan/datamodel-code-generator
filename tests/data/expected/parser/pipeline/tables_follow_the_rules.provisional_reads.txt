@@ -11,6 +11,7 @@ set_reference_default_value_to_field reads FIELD_TYPES before reuse_model writes
 extract_inherited_enum reads BASES, FIELD_SET before reuse_model writes it (compares models after inherited enums became models of their own)
 refresh_import_cache_retention reads MODELS_EXIST before reuse_model writes it (the imports cache retention is decided on the model classes the module has before reuse removes any)
 reuse_model reads CONSTRAINTS, DEFAULTS, DISCRIMINATOR_TAGS, FIELD_TYPES, METADATA, MODELS_EXIST, NULLABLE, REQUIRED before collapse_root_models writes it (inlines the root models that reuse keeps)
+collapse_root_models reads FIELD_TYPES before merge_str_like_union_members writes it (merges the final union members after root models were inlined)
 record_decimal_alias_models reads FIELD_NAMES before change_field_name writes it (the Decimal check reads the field names as parsed)
 change_field_name reads FIELD_NAMES before restore_inherited_field_names_for_unique_aliases writes it (restores the inherited names that renaming changed)
 sort_models reads FIELD_TYPES before apply_discriminator_type writes it (models are ordered by their types before tags rewrite the variant types)

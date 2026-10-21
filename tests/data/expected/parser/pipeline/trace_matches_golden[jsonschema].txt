@@ -31,6 +31,7 @@ mark_unused_models_start
 set_reference_default_value_to_field
 reuse_model
 collapse_root_models
+merge_str_like_union_members
 set_default_enum_member
 sort_models
 change_field_name
