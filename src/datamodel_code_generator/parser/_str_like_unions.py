@@ -8,10 +8,11 @@ every value; without the option the generator warns about it (``parser/_passes/i
 
 With the option the decision writes one plain ``str`` in place of the first str-like member and leaves the others out,
 so the union decodes every string that one of them accepts, as ``str``. A member that is a type alias or root model of
-one str-like type counts as that type and goes too, with the constraints of its alias; the warning
-``merged_str_like_union_message`` names the members each union loses. A union is left as it is, still warned about,
-when the str-like members are not all of the kinds the decision can merge: an Enum (whose class the union would lose),
-a member a ``x-python-type`` annotation types, or an alias of a union that holds a str-like member.
+one str-like type counts as that type and goes too, with the constraints of its alias; the warning of
+``model/_decisions/msgspec_str_like.py:merged_str_like_union_message`` names the members each union loses. A union is
+left as it is, still warned about, when the str-like members are not all of the kinds the decision can merge: an Enum
+of str values (whose class the union would lose), a member a ``x-python-type`` annotation types, or an alias of a union
+that mixes str-like and other members.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from typing import TYPE_CHECKING, Final, Protocol, TypeAlias
 
 from datamodel_code_generator._container_kinds import CONTAINERS, ITEM_CONTAINERS, MAPPINGS
 from datamodel_code_generator._model_keys import model_key_of
-from datamodel_code_generator.model._decisions.enum_kind import literal_value_kind
+from datamodel_code_generator.model._decisions.msgspec_str_like import STR, msgspec_str_like_leaf
 from datamodel_code_generator.parser._phases import DecisionPass, DecisionWriter
 
 if TYPE_CHECKING:
@@ -29,43 +30,7 @@ if TYPE_CHECKING:
     from datamodel_code_generator.model._views import DataTypeView, FieldView, ModelView
     from datamodel_code_generator.parser._phases import FinalFacts
 
-__all__ = [
-    "MERGE_MSGSPEC_STR_LIKE_UNION_MEMBERS",
-    "MSGSPEC_STR_LIKE_TYPES",
-    "StrLikeUnionWriter",
-    "merged_str_like_union_message",
-    "msgspec_str_like_leaf",
-]
-
-MSGSPEC_STR_LIKE_TYPES: Final[frozenset[str]] = frozenset({
-    "bytes",
-    "bytearray",
-    "datetime",
-    "date",
-    "time",
-    "timedelta",
-    "UUID",
-    "Decimal",
-})
-"""The types besides ``str`` that msgspec decodes from a JSON string, of which a union holds at most one."""
-
-_STR: Final = "str"
-
-
-def msgspec_str_like_leaf(leaf: DataTypeView) -> str | None:
-    """Return the str-like member msgspec counts a type that names no model as, or None when it counts as none.
-
-    ``str`` and a ``Literal`` holding a str value count as ``str``; every other str-like type counts as its own name.
-    A type with members, or one that writes enum member literals, is no leaf.
-    """
-    if leaf.data_types or leaf.enum_member_literals:
-        return None
-    if leaf.literals:
-        return _STR if any(literal_value_kind(literal) == _STR for literal in leaf.literals) else None
-    if leaf.type == _STR or leaf.type in MSGSPEC_STR_LIKE_TYPES:
-        return leaf.type
-    return None
-
+__all__ = ["MERGE_MSGSPEC_STR_LIKE_UNION_MEMBERS", "StrLikeUnionWriter"]
 
 _Slot: TypeAlias = "tuple[DataTypeView, str | None]"
 """A written member of a union and the str-like member msgspec counts it as, or None."""
@@ -182,7 +147,7 @@ class _Classifier:
                     return self.slot(value, seen | {id(reference)})
                 slots = self._slots(value, seen | {id(reference)})
                 if all(counted is not None for _, counted in slots):
-                    return _STR
+                    return STR
                 if any(counted is not None for _, counted in slots):
                     raise _Blocked
         return None
@@ -260,15 +225,6 @@ def _merge_msgspec_str_like_union_members(facts: FinalFacts, writer: StrLikeUnio
             [rewrite for union, merged in merges for rewrite in _rewrites(union, merged)],
             [member for _, merged in merges for member in merged],
         )
-
-
-def merged_str_like_union_message(name: str, members: Sequence[str]) -> str:
-    """Describe a union whose str-like members ``--merge-msgspec-str-like-union-members`` wrote as one ``str``."""
-    return (
-        f"--merge-msgspec-str-like-union-members writes {name} with str in place of its str-like members "
-        f"{', '.join(members)}, which a msgspec union holds only one of; the union accepts every string and decodes "
-        "it as str, without the formats and constraints of those members."
-    )
 
 
 MERGE_MSGSPEC_STR_LIKE_UNION_MEMBERS: Final[DecisionPass[StrLikeUnionWriter]] = DecisionPass(

@@ -76987,7 +76987,7 @@ class hierarchy, at any depth and by the bases final at B1, declares fields of i
 (`GenerationStore.mark_serialized_as_any`); a type that names a marked model, by its name or through its module, is
 written `SerializeAsAny[...]` under `--use-serialize-as-any`. `merge_msgspec_str_like_union_members`
 (`parser/_str_like_unions.py`, `--merge-msgspec-str-like-union-members`, msgspec only): a union that holds more than one
-of the str-like members msgspec allows one of (`msgspec_str_like_leaf`, which the msgspec decoding warnings read too:
+of the str-like members msgspec allows one of (`model/_decisions/msgspec_str_like.py:msgspec_str_like_leaf`, which the msgspec decoding warnings read too:
 `str` with the str values of a `Literal`, `bytes`, the dates and times, `UUID`, `Decimal`, and a type alias or root
 model of one of them) is written with one `str` in place of them, decided for every union before the first write; a
 union whose str-like members include an Enum, a type an `x-python-type` annotation writes or an alias of another union

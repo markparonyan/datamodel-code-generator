@@ -53,6 +53,11 @@ from datamodel_code_generator.imports import (
     _stored_import,
 )
 from datamodel_code_generator.model._decisions.enum_kind import enum_member_kinds, literal_value_kind
+from datamodel_code_generator.model._decisions.msgspec_str_like import (
+    MSGSPEC_STR_LIKE_TYPES,
+    merged_str_like_union_message,
+    msgspec_str_like_leaf,
+)
 from datamodel_code_generator.model._decisions.tag_value import struct_tag_clash
 from datamodel_code_generator.model._render_plan import RENDER_READY
 from datamodel_code_generator.model.base import BaseClassDataType, DataModel, _bare_loads_of, _model_key_of_model
@@ -106,11 +111,6 @@ from datamodel_code_generator.parser._passes._shared import (
 )
 from datamodel_code_generator.parser._passes._state import _PYDANTIC_FLOORS, ConfigT, ContextT, ResultT
 from datamodel_code_generator.parser._passes._warnings import warn_as_parser_base
-from datamodel_code_generator.parser._str_like_unions import (
-    MSGSPEC_STR_LIKE_TYPES,
-    merged_str_like_union_message,
-    msgspec_str_like_leaf,
-)
 from datamodel_code_generator.parser._tag_plan import TagPlanHost
 from datamodel_code_generator.python_literal import stable_repr
 from datamodel_code_generator.reference import field_origin_of, named_schema_location, type_origin_of
