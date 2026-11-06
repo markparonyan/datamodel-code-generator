@@ -30,7 +30,7 @@ class ReferenceView(Protocol):
     """The reference of a model: which model a type, a base or a reuse names."""
 
 
-class DataTypeView(Protocol):
+class DataTypeView(Protocol):  # noqa: PLR0904
     """A data type as the decision phase reads it."""
 
     @property
@@ -88,6 +88,10 @@ class DataTypeView(Protocol):
     @property
     def tuple_item_count(self) -> int | None:
         """The item count of a fixed-length tuple."""
+
+    @property
+    def python_type(self) -> object | None:
+        """The Python type annotation an ``x-python-type`` names for the type, or None."""
 
     @property
     def is_custom_type(self) -> bool:

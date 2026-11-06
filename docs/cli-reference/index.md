@@ -11,7 +11,7 @@ This documentation is auto-generated from test cases.
 | 📁 [Base Options](base-options.md) | 18 | Input/output configuration |
 | 🔧 [Typing Customization](typing-customization.md) | 51 | Type annotation and import behavior |
 | 🏷️ [Field Customization](field-customization.md) | 38 | Field naming and docstring behavior |
-| 🏗️ [Model Customization](model-customization.md) | 61 | Model generation behavior |
+| 🏗️ [Model Customization](model-customization.md) | 62 | Model generation behavior |
 | 🎨 [Template Customization](template-customization.md) | 30 | Output formatting and custom rendering |
 | 📘 [OpenAPI-only Options](openapi-only-options.md) | 11 | OpenAPI-specific features |
 | 📋 [GraphQL-only Options](graphql-only-options.md) | 1 |  |
@@ -260,6 +260,7 @@ These links are generated from CLI option metadata and summarize options that im
 
 ### M {#m}
 
+- [`--merge-msgspec-str-like-union-members`](model-customization.md#merge-msgspec-str-like-union-members)
 - [`--merge-shared-variant-tags`](field-customization.md#merge-shared-variant-tags)
 - [`--model-extra-keys`](model-customization.md#model-extra-keys)
 - [`--model-extra-keys-without-x-prefix`](model-customization.md#model-extra-keys-without-x-prefix)
